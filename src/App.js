@@ -22,6 +22,14 @@ function App() {
     setTodos([...todos, newTodo]);
   };
 
+  const updateTodoText = (id, newText) => {
+    setTodos(
+      todos.map(todo =>
+        todo.id === id? { ...todo, text: newText } : todo
+      )
+    );
+  };
+
   // Toggle the 'completed' status of a todo
   const toggleComplete = (id) => {
     setTodos(
@@ -48,6 +56,7 @@ function App() {
             todos={todos}
             toggleComplete={toggleComplete}
             deleteTodo={deleteTodo}
+            updateTodoText={updateTodoText}
           />
         </div>
       </main>

@@ -36,6 +36,7 @@ body {
 .todo-container {
   width: 100%;
   max-width: 500px;
+  min-width: 500px;
   background-color: white;
   padding: 20px;
   border-radius: 8px;
@@ -61,8 +62,8 @@ body {
 }
 
 .add-todo-form button {
-  padding: 10px 15px;
-  font-size: 1rem;
+  padding: 5px 15px;
+  font-size: 1.4rem;
   border: none;
   background-color: #007bff;
   color: white;
@@ -86,8 +87,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px;
+  padding: 15px 0;
   border-bottom: 1px solid #eee;
+  min-width: 0; /* Prevents the item from growing past its container */
+  width: 100%;
 }
 
 .todo-item:last-child {
@@ -102,7 +105,69 @@ body {
   word-break: break-word;
 }
 
-.todo-item button {
+.todo-text {
+  flex-grow: 1;
+  text-align: left;
+  padding-right: 10px;
+  word-break: break-word;
+  color: #333;
+  transition: color 0.2s;
+  min-width: 0; /* Ensures the text can be shrunk without breaking flexbox */
+  line-height: 1.5;
+}
+
+/* This new rule targets a span with both 'todo-text' and 'completed' classes */
+.todo-text.completed {
+  color: #a0a0a0;
+  text-decoration: none;
+}
+
+.button-group {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.edit-input {
+  flex-grow: 1;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font-size: inherit;
+  color: inherit;
+  background-color: transparent;
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+  min-height: 23px;
+  height: auto;
+  box-sizing: border-box;
+  font-family: inherit; /* <-- Add this line to inherit the correct font */
+  overflow: hidden;
+  overflow-wrap: break-word; /* Ensures text wraps correctly */
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #8f8f8f; /* Light gray box when incomplete */
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-right: 15px;
+  background-color: white;
+  transition: background-color 0.2s, border-color 0.2s;
+  color: transparent; /* Hide the checkmark by default */
+}
+
+.checkbox.completed {
+  background-color: #8f8f8f; /* Dark grayish-blue background when complete */
+  border-color: #ccc;
+  color: white; /* Show the white checkmark */
+}
+
+.delete-btn {
   background-color: #dc3545;
   color: white;
   border: none;
@@ -110,8 +175,10 @@ body {
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s;
+  font-weight: bold;
+  width: auto;
 }
 
-.todo-item button:hover {
+.delete-btn:hover {
   background-color: #c82333;
 }
