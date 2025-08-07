@@ -105,45 +105,40 @@ body {
   word-break: break-word;
 }
 
-.todo-text {
+.todo-text-wrapper {
   flex-grow: 1;
-  text-align: left;
-  padding-right: 10px;
-  word-break: break-word;
-  color: #333;
-  transition: color 0.2s;
-  min-width: 0; /* Ensures the text can be shrunk without breaking flexbox */
-  line-height: 1.5;
 }
 
-/* This new rule targets a span with both 'todo-text' and 'completed' classes */
-.todo-text.completed {
+.todo-content-editable {
+  flex-grow: 1;
+  text-align: left;
+  word-break: break-word;
+  color: #333;
+  min-width: 0;
+
+  /* Basic styling for the contenteditable div */
+  display: block;
+  height: auto;
+  min-height: 24px;
+  line-height: 1.5;
+  padding: 0;
+  margin: 0;
+  outline: none; /* Remove the focus outline */
+}
+
+.todo-content-editable.completed {
   color: #a0a0a0;
   text-decoration: none;
+}
+
+.todo-content-editable.edit-mode {
+  border: none;
+  background-color: #fff;
 }
 
 .button-group {
   flex-shrink: 0;
   text-align: right;
-}
-
-.edit-input {
-  flex-grow: 1;
-  border: none;
-  padding: 0;
-  margin: 0;
-  font-size: inherit;
-  color: inherit;
-  background-color: transparent;
-  outline: none;
-  resize: none;
-  line-height: 1.5;
-  min-height: 23px;
-  height: auto;
-  box-sizing: border-box;
-  font-family: inherit; /* <-- Add this line to inherit the correct font */
-  overflow: hidden;
-  overflow-wrap: break-word; /* Ensures text wraps correctly */
 }
 
 .checkbox {
@@ -159,6 +154,7 @@ body {
   background-color: white;
   transition: background-color 0.2s, border-color 0.2s;
   color: transparent; /* Hide the checkmark by default */
+  line-height: 1;
 }
 
 .checkbox.completed {
@@ -177,6 +173,7 @@ body {
   transition: background-color 0.2s;
   font-weight: bold;
   width: auto;
+  line-height: 1;
 }
 
 .delete-btn:hover {

@@ -1,24 +1,20 @@
-import React, { useState, useRef, useEffect }  from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-const TodoItem = ({todo, toggleComplete, deleteTodo, updateTodoText}) => {
+const TodoItem = ({ todo, toggleComplete, deleteTodo, updateTodoText }) => {
     const [isEditing, setIsEditing] = useState(false);
-    const [editText, setEditText] = useState(todo.text);
-    const textareaRef = useRef(null);
-    const spanRef = useRef(null);
+
+    const contentRef = useRef(null);
 
     useEffect(() => {
-        if (isEditing && textareaRef.current) {
-            textareaRef.current.style.height = "auto";
-            textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
-
-            const end = textareaRef.current.value.length;
-            textareaRef.current.setSelectionRange(end, end);
+        if (isEditing && contentRef.current) {
+            contentRef.current.focus();
         }
     }, [isEditing]);
 
     const handleUpdate = () => {
-        if (editText.trim() && editText !== todo.text) {
-            updateTodoText(todo.id, editText.trim());
+        const newText = contentRef.current.innerText.trim();
+        if (newText && newText !== todo.text) {
+            updateTodoText(todo.id, newText);
         }
         setIsEditing(false);
     };
@@ -30,42 +26,41 @@ const TodoItem = ({todo, toggleComplete, deleteTodo, updateTodoText}) => {
         }
     };
 
+    const handleClick = () => {
+        setIsEditing(true);
+    };
+
     return (
         <li className="todo-item">
-            <div className="button-group">
-                <button 
-                    className={todo.completed ? 'checkbox completed' : 'checkbox'}
-                    onClick={() => toggleComplete(todo.id)}>
-                    {todo.completed && '✓'}
-                </button>
+            <button
+                className={todo.completed ? 'checkbox completed' : 'checkbox'}
+                onClick={() => toggleComplete(todo.id)}>
+                {todo.completed && '✓'}
+            </button>
+
+            <div
+                ref={contentRef}
+                className={
+                    isEditing
+                        ? 'todo-content-editable edit-mode'
+                        : (todo.completed ? 'todo-content-editable completed' : 'todo-content-editable')
+                }
+                contentEditable={isEditing}
+                suppressContentEditableWarning={true}
+                onClick={handleClick}
+                onBlur={handleUpdate}
+                onKeyDown={handleKeyDown}
+            >
+                {todo.text}
             </div>
-            {isEditing ? (
-                <textarea
-                    ref={textareaRef}
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    onBlur={handleUpdate}
-                    onKeyDown={handleKeyDown}
-                    className="edit-input"
-                    autoFocus
-                />
-            ) : (
-                <span
-                    ref={spanRef}
-                    className={todo.completed ? 'todo-text completed' : 'todo-text'}
-                    onClick={() => setIsEditing(true)}
-                >
-                    {todo.text}
-                </span>
-            )}
+
             <div className="button-group">
-                <button 
+                <button
                     className='delete-btn'
                     onClick={() => deleteTodo(todo.id)}>
                     X
                 </button>
             </div>
-            
         </li>
     );
 };
