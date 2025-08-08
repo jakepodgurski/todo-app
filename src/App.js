@@ -1,7 +1,22 @@
 import React, { useState } from 'react';
-import './App.css';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+
 import AddTodo from './components/AddTodo';
 import TodoList from './components/TodoList';
+import './App.css';
 
 
 function App() {
@@ -44,21 +59,53 @@ function App() {
     setTodos(todos.filter(todo => todo.id !== id));
   };
 
+  // dnd-kit
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  function handleDragEnd(event) {
+    const {active, over } = event;
+
+    if (active.id !== over.id) {
+      setTodos((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
+
   return (
     <div className="App">
       <header className="App-header">
         <h1>To-Do List</h1>
       </header>
       <main>
-        <div className="todo-container">
-          <AddTodo addTodo={addTodo}/>
-          <TodoList
-            todos={todos}
-            toggleComplete={toggleComplete}
-            deleteTodo={deleteTodo}
-            updateTodoText={updateTodoText}
-          />
-        </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext 
+            items={todos}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="todo-container">
+              <AddTodo addTodo={addTodo} />
+              <TodoList
+                todos={todos}
+                toggleComplete={toggleComplete}
+                deleteTodo={deleteTodo}
+                updateTodoText={updateTodoText}
+              />
+            </div>
+          </SortableContext>
+        </DndContext>
       </main>
     </div>
   );

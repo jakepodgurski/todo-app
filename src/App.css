@@ -83,14 +83,23 @@ body {
   margin: 0;
 }
 
+/* Styling for the main list item container */
 .todo-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 15px;
   padding: 15px 0;
   border-bottom: 1px solid #eee;
-  min-width: 0; /* Prevents the item from growing past its container */
   width: 100%;
+}
+
+/* A container for the left-aligned elements */
+.todo-content-group {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-grow: 1; /* This pushes the delete button to the right */
 }
 
 .todo-item:last-child {
@@ -136,25 +145,36 @@ body {
   background-color: #fff;
 }
 
-.button-group {
+/* The drag handle styling */
+.drag-handle {
+  cursor: grab;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: #888;
   flex-shrink: 0;
-  text-align: right;
-}
-
-.checkbox {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #8f8f8f; /* Light gray box when incomplete */
-  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  margin-right: 15px;
+  position: relative;
+  top: -4px;
+}
+
+/* The checkbox button styling */
+.checkbox {
   background-color: white;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #8f8f8f;
+  border-radius: 4px;
+  display: inline-block;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: transparent;
+  padding: 0;
+  margin: 0;
   transition: background-color 0.2s, border-color 0.2s;
-  color: transparent; /* Hide the checkmark by default */
-  line-height: 1;
+  flex-shrink: 0; /* Prevents the button from shrinking on resize */
 }
 
 .checkbox.completed {
