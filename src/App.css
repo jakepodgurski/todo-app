@@ -106,18 +106,6 @@ body {
   border-bottom: none;
 }
 
-.todo-item span {
-  flex-grow: 1;
-  text-align: left;
-  cursor: pointer;
-  padding-right: 10px;
-  word-break: break-word;
-}
-
-.todo-text-wrapper {
-  flex-grow: 1;
-}
-
 .todo-content-editable {
   flex-grow: 1;
   text-align: left;
@@ -137,7 +125,6 @@ body {
 
 .todo-content-editable.completed {
   color: #a0a0a0;
-  text-decoration: none;
 }
 
 .todo-content-editable.edit-mode {
