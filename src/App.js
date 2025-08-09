@@ -30,6 +30,20 @@ function App() {
     ];
   });
 
+  // New state to manage the current filter
+  const [filter, setFilter] = useState('all');
+
+  // Filter todos based on the current filter state
+  const filteredTodos = todos.filter(todo => {
+    if (filter === 'active') {
+      return !todo.completed;
+    }
+    if (filter === 'completed') {
+      return todo.completed;
+    }
+    return true; // filter === 'all'
+  });
+
   // Save todos to localStorage whenever the todos state changes
   useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(todos));
@@ -66,6 +80,11 @@ function App() {
   const deleteTodo = (id) => {
     setTodos(todos.filter(todo => todo.id !== id));
   };
+  
+  // New function to clear all completed todos
+  const clearCompleted = () => {
+    setTodos(todos.filter(todo => !todo.completed));
+  };
 
   // dnd-kit
   const sensors = useSensors(
@@ -88,6 +107,9 @@ function App() {
     }
   }
 
+  // Check if there are any completed todos to clear
+  const hasCompletedTodos = todos.some(todo => todo.completed);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -99,20 +121,48 @@ function App() {
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext 
-            items={todos}
-            strategy={verticalListSortingStrategy}
-          >
-            <div className="todo-container">
-              <AddTodo addTodo={addTodo} />
+          <div className="todo-container">
+            <AddTodo addTodo={addTodo} />
+            <div className="filters">
+              <button
+                onClick={() => setFilter('all')}
+                className={filter === 'all' ? 'active-filter' : ''}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setFilter('active')}
+                className={filter === 'active' ? 'active-filter' : ''}
+              >
+                Active
+              </button>
+              <button
+                onClick={() => setFilter('completed')}
+                className={filter === 'completed' ? 'active-filter' : ''}
+              >
+                Completed
+              </button>
+              {hasCompletedTodos && (
+                <button 
+                  onClick={clearCompleted} 
+                  className="clear-completed-btn"
+                >
+                  Clear Completed
+                </button>
+              )}
+            </div>
+            <SortableContext
+              items={filteredTodos} // Pass the filtered list here
+              strategy={verticalListSortingStrategy}
+            >
               <TodoList
-                todos={todos}
+                todos={filteredTodos} // And here
                 toggleComplete={toggleComplete}
                 deleteTodo={deleteTodo}
                 updateTodoText={updateTodoText}
               />
-            </div>
-          </SortableContext>
+            </SortableContext>
+          </div>
         </DndContext>
       </main>
     </div>
