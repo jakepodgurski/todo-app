@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -18,14 +18,22 @@ import AddTodo from './components/AddTodo';
 import TodoList from './components/TodoList';
 import './App.css';
 
-
 function App() {
 
-  const [todos, setTodos] = useState([
-    { id: 1, text: 'Learn React', completed: false },
-    { id: 2, text: 'Build a to-do app', completed: false },
-    { id: 3, text: 'Deploy to Netlify', completed: false },
-  ]);
+  // Load todos from localStorage on initial render
+  const [todos, setTodos] = useState(() => {
+    const storedTodos = localStorage.getItem('todos');
+    return storedTodos ? JSON.parse(storedTodos) : [
+      { id: 1, text: 'Learn React', completed: false },
+      { id: 2, text: 'Build a to-do app', completed: false },
+      { id: 3, text: 'Deploy to Netlify', completed: false },
+    ];
+  });
+
+  // Save todos to localStorage whenever the todos state changes
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
 
   // Add todo to list
   const addTodo = (text) => {
@@ -40,7 +48,7 @@ function App() {
   const updateTodoText = (id, newText) => {
     setTodos(
       todos.map(todo =>
-        todo.id === id? { ...todo, text: newText } : todo
+        todo.id === id ? { ...todo, text: newText } : todo
       )
     );
   };
@@ -68,7 +76,7 @@ function App() {
   );
 
   function handleDragEnd(event) {
-    const {active, over } = event;
+    const { active, over } = event;
 
     if (active.id !== over.id) {
       setTodos((items) => {
