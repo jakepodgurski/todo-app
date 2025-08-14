@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -17,8 +17,14 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
     };
 
     const [isEditing, setIsEditing] = useState(false);
-    const [isEditingDate, setIsEditingDate] = useState(false); // New state for date editing
+    const [isEditingDate, setIsEditingDate] = useState(false);
     const contentRef = useRef(null);
+
+    useEffect(() => {
+        if (isEditing) {
+            contentRef.current.focus();
+        }
+    }, [isEditing]);
 
     const handleClick = () => {
         if (!isEditing) {
@@ -51,13 +57,7 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
         day: 'numeric'
     }).replace(' ', '. ') : '';
 
-    // New logic to handle date changes
-    const handleDateChange = (e) => {
-        const newDate = e.target.value;
-        updateTodoDueDate(todo.id, newDate);
-        setIsEditingDate(false); // Switch back to display mode
-    };
-    
+    // Logic to check if a task is overdue
     const isOverdue = todo.dueDate && !todo.completed && new Date(todo.dueDate) < new Date();
 
     return (

@@ -278,3 +278,25 @@ body {
   color: #dc3545; /* Red text for the due date */
   font-weight: bold;
 }
+
+/* Undo Button Styling */
+.undo-btn {
+  background-color: #555;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.undo-btn:hover {
+  background-color: #444;
+}
+
+.undo-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
