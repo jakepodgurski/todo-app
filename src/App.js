@@ -24,16 +24,16 @@ function App() {
   const [todos, setTodos] = useState(() => {
     const storedTodos = localStorage.getItem('todos');
     return storedTodos ? JSON.parse(storedTodos) : [
-      { id: 1, text: 'Learn React', completed: false },
-      { id: 2, text: 'Build a to-do app', completed: false },
-      { id: 3, text: 'Deploy to Netlify', completed: false },
+      { id: 1, text: 'Learn React', completed: false, dueDate: '' },
+      { id: 2, text: 'Build a to-do app', completed: false, dueDate: '' },
+      { id: 3, text: 'Deploy to Netlify', completed: false, dueDate: '' },
     ];
   });
 
-  // New state to manage the current filter
+  // State to manage the current filter and sort order
   const [filter, setFilter] = useState('all');
-
-  // Filter todos based on the current filter state
+  const [sortBy, setSortBy] = useState('none');
+  
   const filteredTodos = todos.filter(todo => {
     if (filter === 'active') {
       return !todo.completed;
@@ -41,7 +41,21 @@ function App() {
     if (filter === 'completed') {
       return todo.completed;
     }
-    return true; // filter === 'all'
+    return true;
+  });
+
+  const sortedTodos = [...filteredTodos].sort((a, b) => {
+    if (!a.dueDate && !b.dueDate) return 0;
+    if (!a.dueDate) return sortBy === 'dueDateAsc' ? 1 : -1;
+    if (!b.dueDate) return sortBy === 'dueDateAsc' ? -1 : 1;
+
+    if (sortBy === 'dueDateAsc') {
+      return new Date(a.dueDate) - new Date(b.dueDate);
+    }
+    if (sortBy === 'dueDateDesc') {
+      return new Date(b.dueDate) - new Date(a.dueDate);
+    }
+    return 0;
   });
 
   // Save todos to localStorage whenever the todos state changes
@@ -49,12 +63,12 @@ function App() {
     localStorage.setItem('todos', JSON.stringify(todos));
   }, [todos]);
 
-  // Add todo to list
-  const addTodo = (text) => {
+  const addTodo = (text, dueDate) => {
     const newTodo = {
       id: Date.now(),
       text: text,
       completed: false,
+      dueDate: dueDate,
     };
     setTodos([...todos, newTodo]);
   };
@@ -67,7 +81,6 @@ function App() {
     );
   };
 
-  // Toggle the 'completed' status of a todo
   const toggleComplete = (id) => {
     setTodos(
       todos.map(todo =>
@@ -76,12 +89,10 @@ function App() {
     );
   };
 
-  // Delete a todo
   const deleteTodo = (id) => {
     setTodos(todos.filter(todo => todo.id !== id));
   };
   
-  // New function to clear all completed todos
   const clearCompleted = () => {
     setTodos(todos.filter(todo => !todo.completed));
   };
@@ -107,8 +118,26 @@ function App() {
     }
   }
 
-  // Check if there are any completed todos to clear
   const hasCompletedTodos = todos.some(todo => todo.completed);
+
+  const updateTodoDueDate = (id, newDueDate) => {
+    setTodos(
+      todos.map(todo =>
+        todo.id === id ? { ...todo, dueDate: newDueDate } : todo
+      )
+    );
+  };
+
+  // Function to toggle the sorting state
+  const toggleSortByDate = () => {
+    if (sortBy === 'none') {
+      setSortBy('dueDateAsc');
+    } else if (sortBy === 'dueDateAsc') {
+      setSortBy('dueDateDesc');
+    } else {
+      setSortBy('none');
+    }
+  };
 
   return (
     <div className="App">
@@ -142,6 +171,12 @@ function App() {
               >
                 Completed
               </button>
+              <button
+                onClick={toggleSortByDate}
+                className={sortBy !== 'none' ? 'active-filter sort-by-date-btn' : 'sort-by-date-btn'}
+              >
+                Sort by Date {sortBy === 'dueDateAsc' ? '▲' : (sortBy === 'dueDateDesc' ? '▼' : '')}
+              </button>
               {hasCompletedTodos && (
                 <button 
                   onClick={clearCompleted} 
@@ -152,14 +187,15 @@ function App() {
               )}
             </div>
             <SortableContext
-              items={filteredTodos} // Pass the filtered list here
+              items={sortedTodos}
               strategy={verticalListSortingStrategy}
             >
               <TodoList
-                todos={filteredTodos} // And here
+                todos={sortedTodos}
                 toggleComplete={toggleComplete}
                 deleteTodo={deleteTodo}
                 updateTodoText={updateTodoText}
+                updateTodoDueDate={updateTodoDueDate}
               />
             </SortableContext>
           </div>

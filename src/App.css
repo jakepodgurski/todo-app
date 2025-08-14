@@ -240,3 +240,41 @@ body {
 .clear-completed-btn:hover {
   background-color: #c82333;
 }
+
+/* Due Date Styles */
+.add-todo-form input[type="date"] {
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-left: none;
+  border-radius: 0;
+  outline: none;
+}
+
+.todo-due-date {
+  font-size: 0.8rem;
+  color: #888;
+  white-space: nowrap;
+}
+
+/* Styling for the date input when editing */
+.todo-due-date-edit {
+  padding: 2px 4px;
+  font-size: 0.8rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+/* Overdue Task Highlighting */
+.todo-item.overdue {
+  border-left: 5px solid #dc3545; /* A red border on the left */
+  padding-left: 10px;
+}
+
+.todo-due-date.overdue-text {
+  color: #dc3545; /* Red text for the due date */
+  font-weight: bold;
+}
