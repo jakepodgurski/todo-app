@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodoDueDate }) {
+function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodoDueDate, updateTodoPriority }) {
     const {
         attributes,
         listeners,
@@ -18,6 +18,7 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
 
     const [isEditing, setIsEditing] = useState(false);
     const [isEditingDate, setIsEditingDate] = useState(false);
+    const [isEditingPriority, setIsEditingPriority] = useState(false);
     const contentRef = useRef(null);
 
     useEffect(() => {
@@ -42,6 +43,12 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
             }
             setIsEditing(false);
         }
+    };
+
+    const handlePriorityChange = (e) => {
+        const newPriority = e.target.value;
+        updateTodoPriority(todo.id, newPriority);
+        setIsEditingPriority(false);
     };
 
     const handleKeyDown = (e) => {
@@ -92,6 +99,29 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
                 >
                     {todo.text}
                 </div>
+                {isEditingPriority ? (
+                    <select
+                        className="todo-priority-edit"
+                        value={todo.priority}
+                        onChange={handlePriorityChange}
+                        onBlur={() => setIsEditingPriority(false)}
+                        autoFocus
+                    >
+                        <option value="">No Priority</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                ) : (
+                    todo.priority && (
+                        <span
+                            className={`todo-priority ${todo.priority.toLowerCase()}`}
+                            onClick={() => setIsEditingPriority(true)}
+                        >
+                            {todo.priority}
+                        </span>
+                    )
+                )}
                 {todo.dueDate && (
                     isEditingDate ? (
                         <input

@@ -14,7 +14,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import useLocalStorage from './hooks/useLocalStorage'; // <-- Import the new hook
+import useLocalStorage from './hooks/useLocalStorage';
 import AddTodo from './components/AddTodo';
 import TodoList from './components/TodoList';
 import './App.css';
@@ -22,12 +22,11 @@ import './App.css';
 function App() {
 
   const initialTodos = [
-    { id: 1, text: 'Learn React', completed: false, dueDate: '' },
-    { id: 2, text: 'Build a to-do app', completed: false, dueDate: '' },
-    { id: 3, text: 'Deploy to Netlify', completed: false, dueDate: '' },
+    { id: 1, text: 'Learn React', completed: false, dueDate: '', priority: 'Medium' },
+    { id: 2, text: 'Build a to-do app', completed: false, dueDate: '', priority: 'High' },
+    { id: 3, text: 'Deploy to Netlify', completed: false, dueDate: '', priority: 'Low' },
   ];
 
-  // Use the custom hook to manage todos state and localStorage
   const [todos, setTodos] = useLocalStorage('todos', initialTodos);
 
   const [history, setHistory] = useState([todos]);
@@ -61,25 +60,34 @@ function App() {
   });
 
   const sortedTodos = [...filteredTodos].sort((a, b) => {
-    if (!a.dueDate && !b.dueDate) return 0;
-    if (!a.dueDate) return sortBy === 'dueDateAsc' ? 1 : -1;
-    if (!b.dueDate) return sortBy === 'dueDateAsc' ? -1 : 1;
+    // New sorting logic for priority
+    const priorityOrder = { 'High': 3, 'Medium': 2, 'Low': 1, '': 0 };
+
+    if (sortBy === 'priority') {
+      return priorityOrder[b.priority] - priorityOrder[a.priority];
+    }
     if (sortBy === 'dueDateAsc') {
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return 1;
+      if (!b.dueDate) return -1;
       return new Date(a.dueDate) - new Date(b.dueDate);
     }
     if (sortBy === 'dueDateDesc') {
+      if (!a.dueDate && !b.dueDate) return 0;
+      if (!a.dueDate) return -1;
+      if (!b.dueDate) return 1;
       return new Date(b.dueDate) - new Date(a.dueDate);
     }
     return 0;
   });
 
-  // Refactored functions to use updateHistory
-  const addTodo = (text, dueDate) => {
+  const addTodo = (text, dueDate, priority) => {
     const newTodo = {
       id: Date.now(),
       text: text,
       completed: false,
       dueDate: dueDate,
+      priority: priority,
     };
     updateHistory([...todos, newTodo]);
   };
@@ -105,6 +113,13 @@ function App() {
     updateHistory(newTodos);
   };
 
+  const updateTodoPriority = (id, newPriority) => {
+    const newTodos = todos.map(todo =>
+      todo.id === id ? { ...todo, priority: newPriority } : todo
+    );
+    updateHistory(newTodos);
+  };
+
   const deleteTodo = (id) => {
     const newTodos = todos.filter(todo => todo.id !== id);
     updateHistory(newTodos);
@@ -115,7 +130,6 @@ function App() {
     updateHistory(newTodos);
   };
 
-  // The DND function now also uses updateHistory
   function handleDragEnd(event) {
     const { active, over } = event;
     if (active.id !== over.id) {
@@ -134,16 +148,6 @@ function App() {
   );
 
   const hasCompletedTodos = todos.some(todo => todo.completed);
-
-  const toggleSortByDate = () => {
-    if (sortBy === 'none') {
-      setSortBy('dueDateAsc');
-    } else if (sortBy === 'dueDateAsc') {
-      setSortBy('dueDateDesc');
-    } else {
-      setSortBy('none');
-    }
-  };
 
   return (
     <div className="App">
@@ -178,8 +182,14 @@ function App() {
                 Completed
               </button>
               <button
-                onClick={toggleSortByDate}
-                className={sortBy !== 'none' ? 'active-filter sort-by-date-btn' : 'sort-by-date-btn'}
+                onClick={() => setSortBy(sortBy === 'priority' ? 'none' : 'priority')}
+                className={sortBy === 'priority' ? 'active-filter' : ''}
+              >
+                Sort by Priority
+              </button>
+              <button
+                onClick={() => setSortBy(sortBy === 'dueDateAsc' ? 'dueDateDesc' : 'dueDateAsc')}
+                className={sortBy === 'dueDateAsc' || sortBy === 'dueDateDesc' ? 'active-filter' : ''}
               >
                 Sort by Date {sortBy === 'dueDateAsc' ? '▲' : (sortBy === 'dueDateDesc' ? '▼' : '')}
               </button>
@@ -209,6 +219,7 @@ function App() {
                 deleteTodo={deleteTodo}
                 updateTodoText={updateTodoText}
                 updateTodoDueDate={updateTodoDueDate}
+                updateTodoPriority={updateTodoPriority}
               />
             </SortableContext>
           </div>

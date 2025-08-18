@@ -8,25 +8,30 @@ import { useState, useEffect } from 'react';
  */
 function useLocalStorage(key, initialValue) {
   // State to store our value
-  // Pass initial state function to useState so logic is only executed once
   const [value, setValue] = useState(() => {
     try {
       const item = window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
-      // If error, return initial value
       console.error(error);
       return initialValue;
     }
   });
 
-  // useEffect to update localStorage whenever the value changes
+  // useEffect to update localStorage whenever the value changes, with a debounce
   useEffect(() => {
-    try {
-      window.localStorage.setItem(key, JSON.stringify(value));
-    } catch (error) {
-      console.error(error);
-    }
+    const timer = setTimeout(() => {
+      try {
+        window.localStorage.setItem(key, JSON.stringify(value));
+      } catch (error) {
+        console.error(error);
+      }
+    }, 500); // Wait for 500ms of inactivity before saving
+
+    // This cleanup function will clear the timer if the value or key changes again
+    // before the timeout has completed.
+    return () => clearTimeout(timer);
+
   }, [key, value]);
 
   return [value, setValue];
