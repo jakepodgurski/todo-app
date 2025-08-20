@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -14,20 +14,22 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
-import useLocalStorage from './hooks/useLocalStorage';
 import AddTodo from './components/AddTodo';
 import TodoList from './components/TodoList';
 import './App.css';
 
+const API_URL = 'http://localhost:3001/todos';
+
 function App() {
 
-  const initialTodos = [
-    { id: 1, text: 'Learn React', completed: false, dueDate: '', priority: 'Medium' },
-    { id: 2, text: 'Build a to-do app', completed: false, dueDate: '', priority: 'High' },
-    { id: 3, text: 'Deploy to Netlify', completed: false, dueDate: '', priority: 'Low' },
-  ];
-
-  const [todos, setTodos] = useLocalStorage('todos', initialTodos);
+  const [todos, setTodos] = useState([]);
+  
+  useEffect(() => {
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => setTodos(data))
+      .catch(error => console.error("Error fetching todos:", error));
+  }, []);
 
   const [history, setHistory] = useState([todos]);
   const [historyIndex, setHistoryIndex] = useState(0);
@@ -60,7 +62,6 @@ function App() {
   });
 
   const sortedTodos = [...filteredTodos].sort((a, b) => {
-    // New sorting logic for priority
     const priorityOrder = { 'High': 3, 'Medium': 2, 'Low': 1, '': 0 };
 
     if (sortBy === 'priority') {
@@ -83,51 +84,104 @@ function App() {
 
   const addTodo = (text, dueDate, priority) => {
     const newTodo = {
-      id: Date.now(),
       text: text,
       completed: false,
       dueDate: dueDate,
       priority: priority,
     };
-    updateHistory([...todos, newTodo]);
+    fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTodo),
+    })
+    .then(res => res.json())
+    .then(data => updateHistory([...todos, data]))
+    .catch(error => console.error("Error adding todo:", error));
   };
 
   const updateTodoText = (id, newText) => {
+    const updatedTodo = todos.find(todo => todo.id === id);
+    if (!updatedTodo) return;
     const newTodos = todos.map(todo =>
-      todo.id === id ? { ...todo, text: newText } : todo
+      todo.id === id ? { ...updatedTodo, text: newText } : todo
     );
-    updateHistory(newTodos);
+    fetch(`${API_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...updatedTodo, text: newText }),
+    })
+    .then(() => updateHistory(newTodos))
+    .catch(error => console.error("Error updating todo text:", error));
   };
 
   const toggleComplete = (id) => {
+    const updatedTodo = todos.find(todo => todo.id === id);
+    if (!updatedTodo) return;
     const newTodos = todos.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      todo.id === id ? { ...updatedTodo, completed: !updatedTodo.completed } : todo
     );
-    updateHistory(newTodos);
+    fetch(`${API_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...updatedTodo, completed: !updatedTodo.completed }),
+    })
+    .then(() => updateHistory(newTodos))
+    .catch(error => console.error("Error toggling completion:", error));
   };
 
   const updateTodoDueDate = (id, newDueDate) => {
+    const updatedTodo = todos.find(todo => todo.id === id);
+    if (!updatedTodo) return;
     const newTodos = todos.map(todo =>
-      todo.id === id ? { ...todo, dueDate: newDueDate } : todo
+      todo.id === id ? { ...updatedTodo, dueDate: newDueDate } : todo
     );
-    updateHistory(newTodos);
+    fetch(`${API_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...updatedTodo, dueDate: newDueDate }),
+    })
+    .then(() => updateHistory(newTodos))
+    .catch(error => console.error("Error updating todo due date:", error));
   };
 
   const updateTodoPriority = (id, newPriority) => {
+    const updatedTodo = todos.find(todo => todo.id === id);
+    if (!updatedTodo) return;
     const newTodos = todos.map(todo =>
-      todo.id === id ? { ...todo, priority: newPriority } : todo
+      todo.id === id ? { ...updatedTodo, priority: newPriority } : todo
     );
-    updateHistory(newTodos);
+    fetch(`${API_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...updatedTodo, priority: newPriority }),
+    })
+    .then(() => updateHistory(newTodos))
+    .catch(error => console.error("Error updating todo priority:", error));
   };
 
   const deleteTodo = (id) => {
-    const newTodos = todos.filter(todo => todo.id !== id);
-    updateHistory(newTodos);
+    fetch(`${API_URL}/${id}`, {
+      method: 'DELETE',
+    })
+    .then(() => {
+      const newTodos = todos.filter(todo => todo.id !== id);
+      updateHistory(newTodos);
+    })
+    .catch(error => console.error("Error deleting todo:", error));
   };
   
   const clearCompleted = () => {
-    const newTodos = todos.filter(todo => !todo.completed);
-    updateHistory(newTodos);
+    const completedTodos = todos.filter(todo => todo.completed);
+    const deletePromises = completedTodos.map(todo =>
+        fetch(`${API_URL}/${todo.id}`, { method: 'DELETE' })
+    );
+
+    Promise.all(deletePromises)
+        .then(() => {
+            const newTodos = todos.filter(todo => !todo.completed);
+            updateHistory(newTodos);
+        })
+        .catch(error => console.error("Error clearing completed todos:", error));
   };
 
   function handleDragEnd(event) {
@@ -136,7 +190,18 @@ function App() {
       const oldIndex = todos.findIndex((item) => item.id === active.id);
       const newIndex = todos.findIndex((item) => item.id === over.id);
       const newTodos = arrayMove(todos, oldIndex, newIndex);
-      updateHistory(newTodos);
+      
+      const putPromises = newTodos.map(todo =>
+        fetch(`${API_URL}/${todo.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(todo),
+        })
+      );
+      
+      Promise.all(putPromises)
+        .then(() => updateHistory(newTodos))
+        .catch(error => console.error("Error reordering todos:", error));
     }
   }
 
