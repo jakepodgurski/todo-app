@@ -18,7 +18,9 @@ import AddTodo from './components/AddTodo';
 import TodoList from './components/TodoList';
 import './App.css';
 
-const API_URL = 'http://localhost:3001/todos';
+const API_URL = process.env.NODE_ENV === 'production'
+    ? 'https://your-deployed-backend-url.com/todos' // CHANGE THIS
+    : 'http://localhost:3001/todos';
 
 function App() {
 

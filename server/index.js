@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const port = 3001; // Use a different port than React (which is 3000)
+const port = process.env.PORT || 3001;  // Use a different port than React (which is 3000)
 
 // Middleware
 app.use(cors()); // Enable CORS to allow requests from the React app
