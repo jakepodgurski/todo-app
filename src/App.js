@@ -18,7 +18,7 @@ import AddTodo from './components/AddTodo';
 import TodoList from './components/TodoList';
 import './App.css';
 
-const API_URL = "https://todo-app-1tib.onrender.com"
+const API_URL = "https://todo-app-1tib.onrender.com/todos"
 
 function App() {
 
