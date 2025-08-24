@@ -1,2 +1,7 @@
 [functions]
   directory = "server"
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/index/:splat"
+  status = 200
