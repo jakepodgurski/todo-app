@@ -6,7 +6,7 @@ const TodoList = ({todos, toggleComplete, deleteTodo, updateTodoText, updateTodo
         <ul className="todo-list">
             {todos.map(todo => (
                 <TodoItem
-                    key={todo.id}
+                    key={todo._id}
                     todo={todo}
                     toggleComplete={toggleComplete}
                     updateTodoText={updateTodoText}
