@@ -9,7 +9,7 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
         setNodeRef,
         transform,
         transition,
-    } = useSortable({ id: todo.id });
+    } = useSortable({ id: todo._id });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -37,9 +37,9 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
         if (isEditing) {
             const newText = contentRef.current.innerText;
             if (newText.trim() !== '') {
-                updateTodoText(todo.id, newText);
+                updateTodoText(todo._id, newText);
             } else {
-                deleteTodo(todo.id);
+                deleteTodo(todo._id);
             }
             setIsEditing(false);
         }
@@ -47,7 +47,7 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
 
     const handlePriorityChange = (e) => {
         const newPriority = e.target.value;
-        updateTodoPriority(todo.id, newPriority);
+        updateTodoPriority(todo._id, newPriority);
         setIsEditingPriority(false);
     };
 
@@ -80,7 +80,7 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
 
                 <button
                     className={todo.completed ? 'checkbox completed' : 'checkbox'}
-                    onClick={() => toggleComplete(todo.id)}>
+                    onClick={() => toggleComplete(todo._id)}>
                     {todo.completed && '✓'}
                 </button>
 
@@ -128,7 +128,7 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
                             type="date"
                             className="todo-due-date-edit"
                             value={todo.dueDate}
-                            onChange={(e) => updateTodoDueDate(todo.id, e.target.value)}
+                            onChange={(e) => updateTodoDueDate(todo._id, e.target.value)}
                             onBlur={() => setIsEditingDate(false)}
                         />
                     ) : (
@@ -144,7 +144,7 @@ function TodoItem({ todo, toggleComplete, deleteTodo, updateTodoText, updateTodo
 
             <button
                 className='delete-btn'
-                onClick={() => deleteTodo(todo.id)}>
+                onClick={() => deleteTodo(todo._id)}>
                 X
             </button>
         </li>
