@@ -10,12 +10,9 @@ const User = require('./models/User');
 const app = express();
 const port = process.env.PORT || 3001;
 
-const JWT_SECRET = '***REMOVED***';
+const JWT_SECRET = process.env.JWT_SECRET;
+const DB_URI = process.env.DB_URI;
 
-// Replace with your MongoDB Atlas connection string
-const DB_URI = 'mongodb+srv://jdpodgurski:***REMOVED***@cluster0.a0e5blr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
-
-// Connect to MongoDB
 mongoose.connect(DB_URI)
     .then(() => console.log('Connected to MongoDB!'))
     .catch(err => console.error('Could not connect to MongoDB...', err));
@@ -35,17 +32,13 @@ app.post('/api/register', [
 
     try {
         const { username, password } = req.body;
-        
-        // Check if user already exists
         const existingUser = await User.findOne({ username });
         if (existingUser) {
             return res.status(400).json({ message: 'Username already exists' });
         }
         
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
         
-        // Create and save new user
         const newUser = new User({ username, password: hashedPassword });
         await newUser.save();
         
@@ -84,8 +77,6 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// For now, let's keep the API endpoints but connect them to a dummy model
-// We will replace this with real functionality in the next step
 const TodoSchema = new mongoose.Schema({
     text: String,
     completed: Boolean,
@@ -102,7 +93,6 @@ const Todo = mongoose.model('Todo', TodoSchema);
 
 // --- API Endpoints ---
 
-// Middleware to protect routes
 const auth = (req, res, next) => {
     try {
         const token = req.headers.authorization.split(' ')[1];
